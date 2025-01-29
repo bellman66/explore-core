@@ -1,9 +1,8 @@
-package compile;
+package compile.annotation;
 
 import com.sun.source.util.TaskEvent;
 import com.sun.tools.javac.code.Symbol;
 import com.sun.tools.javac.comp.CompileStates;
-import com.sun.tools.javac.processing.JavacProcessingEnvironment;
 import com.sun.tools.javac.resources.CompilerProperties;
 import com.sun.tools.javac.tree.JCTree;
 import com.sun.tools.javac.util.Assert;
@@ -20,7 +19,7 @@ import static com.sun.tools.javac.main.Option.PROC;
 /**
  * Jdk 소스내 어노테이션 프로세싱 소스코드
  */
-public class AnnotationProcessor {
+public class JavaCompiler {
 
     /**
      * [Prev] 1. 어노테이션 진행전 어노테이션 설정 주입
@@ -83,6 +82,9 @@ public class AnnotationProcessor {
      *       ),
      *       classnames
      *   );
+     *
+     * doProcessing 로직내 지속적인 Round 개념이 포함됨
+     * JavacProcessingEnvironment.doProcessing() 참고
      *
      * @param roots
      * @param classnames
