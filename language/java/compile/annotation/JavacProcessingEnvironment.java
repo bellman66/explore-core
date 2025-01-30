@@ -20,6 +20,12 @@ public class JavacProcessingEnvironment {
      * [Core] 1. 어노테이션 Main 프로세스 로직
      *   - Round 개념이 들어감 ( JavaCompiler )
      *
+     *  !! Round 란
+     *  컴파일러가 어노테이션을 읽고 구문트리를 수정해야 될 경우
+     *  컴파일러는 구문 분석 & 어노테이션 처리 ( 전 단계로 )로 돌아가야함.
+     *  이는 구문트리가 수정되지 않을때까지 지속적으로 반복하도록 설계.
+     *  이렇게 반복되는 것을 라운드라고 부른다.
+     *
      * @param roots
      * @param classSymbols
      * @param pckSymbols
