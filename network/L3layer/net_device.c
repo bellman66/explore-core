@@ -43,3 +43,57 @@ static inline struct net *read_pnet(const possible_net_t *pnet)
  */
 #define rcu_dereference_protected(p, c) \
 	__rcu_dereference_protected((p), __UNIQUE_ID(rcu), (c), __rcu)
+
+/**
+* location - include/linux/rcupdate.h
+*
+*/
+#define __rcu_dereference_protected(p, local, c, space) \
+({ \
+	RCU_LOCKDEP_WARN(!(c), "suspicious rcu_dereference_protected() usage"); \
+	rcu_check_sparse(p, space); \
+	((typeof(*p) __force __kernel *)(p)); \
+})
+
+
+/**
+ * location - include/linux/rcupdate.h
+ *
+ * RCU_LOCKDEP_WARN - emit lockdep splat if specified condition is met
+ * @c: condition to check
+ * @s: informative message
+ *
+ * This checks debug_lockdep_rcu_enabled() before checking (c) to
+ * prevent early boot splats due to lockdep not yet being initialized,
+ * and rechecks it after checking (c) to prevent false-positive splats
+ * due to races with lockdep being disabled.  See commit 3066820034b5dd
+ * ("rcu: Reject RCU_LOCKDEP_WARN() false positives") for more detail.
+ */
+#define RCU_LOCKDEP_WARN(c, s)						\
+	do {								\
+		static bool __section(".data..unlikely") __warned;	\
+		if (debug_lockdep_rcu_enabled() && (c) &&		\
+		    debug_lockdep_rcu_enabled() && !__warned) {		\
+			__warned = true;				\
+			lockdep_rcu_suspicious(__FILE__, __LINE__, s);	\
+		}							\
+	} while (0)
+
+#ifndef CONFIG_PREEMPT_RCU
+
+/*
+ * location - include/linux/rcupdate.h
+ *
+ * Helper functions for rcu_dereference_check(), rcu_dereference_protected()
+ * and rcu_assign_pointer().  Some of these could be folded into their
+ * callers, but they are left separate in order to ease introduction of
+ * multiple pointers markings to match different RCU implementations
+ * (e.g., __srcu), should this make sense in the future.
+ */
+
+#ifdef __CHECKER__
+#define rcu_check_sparse(p, space) \
+	((void)(((typeof(*p) space *)p) == p))
+#else /* #ifdef __CHECKER__ */
+#define rcu_check_sparse(p, space)
+#endif /* #else #ifdef __CHECKER__ */
